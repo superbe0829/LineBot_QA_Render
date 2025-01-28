@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 print()
-print("============================")
-print("Program：LineBot_QA_1140128")
+print("===================================")
+print("Program：LineBot_QA_Render_1140128")
 print("Author： Chang Pi-Tsao")
 print("Created on Jan. 28  2025")
-print("============================")
+print("===================================")
 print()
 
 from flask import Flask, request, abort
@@ -18,10 +18,15 @@ import json
 # 初始化 Flask 應用程式
 app = Flask(__name__)
 
-# line_bot_api = LineBotApi('Your_Channel_Access_Token')
-# handler = WebhookHandler('Your_Channel_Secret')
-line_bot_api = LineBotApi('riZfl2ffJgxsxb/qbkK8S1adVJNis6wIuEnv8cyUVIZs/lANt3PVZ9E7cKRDVRh55kLYZYa1nCMAhOmDtYjZtiu2m3thX3LHjSiCzQDwc5/KCFZMA4z+a8WPyKy2QhxkHuPU0O+w+4lC+gW4yhAHGwdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('e4b279984e232008960c501291d9c648')
+# Line Bot Token & Secret (從環境變數讀取)
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
+
+if not LINE_CHANNEL_ACCESS_TOKEN or not LINE_CHANNEL_SECRET:
+    raise EnvironmentError("請設定 LINE_CHANNEL_ACCESS_TOKEN 和 LINE_CHANNEL_SECRET 環境變數。")
+
+line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -70,5 +75,5 @@ def get_answer_from_qa(user_message):
 
 # 啟動伺服器
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", port=5000)
-    app.run()
+    port = int(os.getenv("PORT", 5000))  # Render 平台使用的動態 Port
+    app.run(host="0.0.0.0", port=port)
