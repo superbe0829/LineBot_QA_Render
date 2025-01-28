@@ -28,18 +28,32 @@ if not LINE_CHANNEL_ACCESS_TOKEN or not LINE_CHANNEL_SECRET:
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
-@app.route("/callback", methods=['POST'])
+# @app.route("/callback", methods=['POST'])
+# def callback():
+#     # Get X-Line-Signature header value
+#     signature = request.headers['X-Line-Signature']
+#     # Get request body as text
+#     body = request.get_data(as_text=True)
+#     # Handle webhook body
+#     try:
+#         handler.handle(body, signature)
+#     except InvalidSignatureError:
+#         abort(400)
+#     return 'OK'
+
+@app.route('/callback', methods=['GET', 'POST', 'HEAD'])
 def callback():
-    # Get X-Line-Signature header value
-    signature = request.headers['X-Line-Signature']
-    # Get request body as text
-    body = request.get_data(as_text=True)
-    # Handle webhook body
-    try:
+    if request.method == 'HEAD':
+        # 返回空的 200 OK 回應（回應UptimeRobot每5分鐘的請求）
+        return '', 200
+    elif request.method == 'GET':
+        return 'OK', 300
+    elif request.method == 'POST':
+        # 處理 Line Bot 的訊息
+        body = request.get_data(as_text=True)
+        signature = request.headers.get('X-Line-Signature', '')
         handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
-    return 'OK'
+        return 'OK', 400
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
